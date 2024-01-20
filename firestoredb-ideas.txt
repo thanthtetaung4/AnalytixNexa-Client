@@ -1,0 +1,13 @@
+User
+{
+   {…from user auth},
+    results: [results],
+    files: [file paths],
+    theme: ( light || dark, default = dark )
+}
+
+Files
+{
+    createdAt: { create timestamps}
+    fileId: id || filePath
+}

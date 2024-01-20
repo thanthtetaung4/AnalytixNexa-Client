@@ -59,6 +59,9 @@ const useAuth = () => {
     await auth.signOut();
     setUser(null);
     localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
+    console.log(user, localStorage.getItem("user")),
+      sessionStorage.getItem("user");
   };
 
   return { user, login, loginWithGoogle, logout };

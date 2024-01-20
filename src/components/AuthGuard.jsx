@@ -6,6 +6,7 @@ const AuthGuard = () => {
   const { auth } = useContext(AuthContext);
   // console.log(auth.user);
   if (!auth.user) {
+    // console.log("Blocked");
     return <Navigate to="/login" replace />;
   }
 

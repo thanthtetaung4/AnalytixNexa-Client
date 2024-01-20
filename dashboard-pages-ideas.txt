@@ -1,0 +1,45 @@
+Some Logic
+First add some user verification feature and password reset feature.
+
+Sign Up
+form
+onSubmit => signup the user
+
+Account
+Get user from useAuth()
+states => fname lname email 
+Section 1
+Form to change name. 
+Section 2
+Form to change pwd. 
+
+Settings
+Get user with useAuth()
+state => user.theme
+Option to change light and dark theme.
+
+Result
+get user with useAuth()
+states => user.results[]
+Show results and delete button to delete 
+    -> use MUI table?
+
+Files
+get user with useAuth()
+states => user.files[]
+Show files, download and delete button
+    -> use MUI table?
+
+Extra logic ( auto delete files older than 15 days )
+
+
+Analyse
+Get user with useAuth()
+state => user.files[], user. results[], loading, result
+Drag and drop area to upload file ( only accept excel, csv)
+Save button to upload to cloud and api request to server with file path var to download the uploaded file and get headers back.
+
+( disabled before the above steps ) 
+Let user choose target from the api response which will have headers.
+Analyse btn to sent api request with the target and file path var. 
+set loading while receiving res and navigate to result route. 

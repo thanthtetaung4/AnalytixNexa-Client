@@ -11,12 +11,15 @@ import {
   Link as MUILink,
   FormControlLabel,
   Divider,
+  CircularProgress,
+  Modal,
 } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
 import poster from "../assets/poster-img.png";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../components/useAuth";
+import ModalBox from "../components/ModalBox";
 
 const Login = () => {
   const theme = useTheme();
@@ -25,7 +28,8 @@ const Login = () => {
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [isLogInError, setLogInError] = useState(false);
   const [credential, setCredential] = useState({ email: "", pwd: "" });
-  const { login, loginWithGoogle } = useAuth(); // Access login function from hook
+  const { login, loginWithGoogle } = useAuth();
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -44,9 +48,12 @@ const Login = () => {
 
   const handleSignIn = async () => {
     try {
+      setLoading(true);
       await login(credential.email, credential.pwd, isRemember);
+      setLoading(false);
       setSuccessfulLogin(true);
     } catch (error) {
+      setLoading(false);
       setLogInError(true);
     }
   };
@@ -57,9 +64,12 @@ const Login = () => {
 
   const handleGoogleSingIn = async () => {
     try {
+      setLoading(true);
       await loginWithGoogle();
       setSuccessfulLogin(true);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       setLogInError(true);
       console.error(error); // Handle login errors
     }
@@ -94,6 +104,7 @@ const Login = () => {
       <Grid item sx={{}} xs>
         <Box
           sx={{
+            position: "relative",
             height: "100%",
             display: "flex",
             flexDirection: "column",
@@ -123,6 +134,9 @@ const Login = () => {
             label="Password"
             type="password"
             onChange={(e) => handlePwdChange(e.target.value)}
+            onKeyDown={(e) => {
+              e.key === "Enter" && handleSignIn();
+            }}
           />
           {isLogInError && (
             <Alert severity="error">Invalid Email or Password</Alert>
@@ -152,6 +166,17 @@ const Login = () => {
           <MUILink sx={{ cursor: "pointer", userSelect: "none" }}>
             Don&apos;t have an Account? Sing up now.
           </MUILink>
+          <Modal open={loading}>
+            <ModalBox
+              sx={{
+                "&:focus": {
+                  outline: "none",
+                },
+              }}
+            >
+              <CircularProgress />
+            </ModalBox>
+          </Modal>
         </Box>
       </Grid>
     </Grid>
