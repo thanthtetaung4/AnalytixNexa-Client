@@ -31,6 +31,8 @@ const Login = () => {
   const { login, loginWithGoogle } = useAuth();
   const [loading, setLoading] = useState(false);
 
+  console.log("Hi from login");
+
   const navigate = useNavigate();
   useEffect(() => {
     successfulLogin && navigate("/dashboard");
@@ -53,6 +55,7 @@ const Login = () => {
       setLoading(false);
       setSuccessfulLogin(true);
     } catch (error) {
+      console.log(error);
       setLoading(false);
       setLogInError(true);
     }
@@ -163,7 +166,10 @@ const Login = () => {
           <Button variant="contained" onClick={handleGoogleSingIn}>
             Sign In with Google <GoogleIcon sx={{ ml: 1 }} />
           </Button>
-          <MUILink sx={{ cursor: "pointer", userSelect: "none" }}>
+          <MUILink
+            sx={{ cursor: "pointer", userSelect: "none" }}
+            onClick={() => navigate("/signup")}
+          >
             Don&apos;t have an Account? Sing up now.
           </MUILink>
           <Modal open={loading}>

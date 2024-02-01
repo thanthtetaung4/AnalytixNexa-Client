@@ -4,10 +4,14 @@ import { AuthContext } from "./AuthProvider";
 
 const AuthGuard = () => {
   const { auth } = useContext(AuthContext);
-  // console.log(auth.user);
+  console.log("from auth Guard", auth.user);
   if (!auth.user) {
-    // console.log("Blocked");
+    console.log("Blocked");
     return <Navigate to="/login" replace />;
+  }
+  if (!auth.user.emailVerified) {
+    // Redirect to verification page if user is not verified
+    return <Navigate to="/verify" replace />;
   }
 
   return <Outlet />;
