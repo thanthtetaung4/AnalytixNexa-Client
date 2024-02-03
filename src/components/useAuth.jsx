@@ -16,7 +16,9 @@ import {
   uploadBytesResumable,
   getDownloadURL,
   deleteObject,
+  getMetadata,
 } from "firebase/storage";
+import { FileUploadError } from "./errors";
 
 const useAuth = () => {
   const [user, setUser] = useState(
@@ -29,9 +31,10 @@ const useAuth = () => {
   const [userDetails, setUserDetails] = useState(null);
 
   // const [user, setUser] = useState(null);
-  console.log("user", user);
-  console.log("current user", auth.currentUser);
-  console.log("Current data: ", userDetails);
+  // console.log("user", user);
+  // console.log("current user", auth.currentUser);
+  // console.log("Current data: ", userDetails);
+  console.log(userDetails);
 
   const provider = new GoogleAuthProvider();
   useEffect(() => {
@@ -105,32 +108,64 @@ const useAuth = () => {
       sessionStorage.getItem("user");
   };
 
-  const deleteFileUserDetails = async (file, uid) => {
+  const deleteFileUserDetails = async (file) => {
+    console.log("hello from deletefileuserdetails", file);
     // Find the index of the file in userDetails
     const index = userDetails.files.indexOf(file);
+    console.log(index);
 
     if (index > -1) {
       // Create a copy of userDetails.files without the deleted file
       const updatedFiles = [...userDetails.files];
       updatedFiles.splice(index, 1);
-
+      console.log("updated Files", updatedFiles);
       // Update userDetails state
       setUserDetails({ ...userDetails, files: updatedFiles });
 
       try {
         // Update userDetails document in Firestore
-        await updateDoc(doc(db, "userDetails", uid), {
+        await updateDoc(doc(db, "userDetails", user.uid), {
           files: updatedFiles,
         });
 
         // Delete the file from Firebase Storage
-        const storageRef = ref(storage, `userFiles/${uid}/${file.name}`);
+        const storageRef = ref(storage, `userFiles/${user.uid}/${file.name}`);
+
         await deleteObject(storageRef);
 
         console.log("File deleted successfully from userDetails and Storage");
       } catch (e) {
         console.error("Error deleting file: ", e);
       }
+    }
+  };
+
+  const deleteMultipleFilesUserDetails = async (filesToDelete) => {
+    try {
+      const updatedFiles = userDetails.files.filter(
+        (file) => !filesToDelete.includes(file)
+      );
+
+      // Update userDetails state
+      setUserDetails({ ...userDetails, files: updatedFiles });
+
+      // Batch delete files from Firestore and Storage concurrently
+      await Promise.all([
+        // Update userDetails document in Firestore
+        updateDoc(doc(db, "userDetails", user.uid), { files: updatedFiles }),
+
+        // Delete files from Firebase Storage concurrently
+        ...filesToDelete.map((file) =>
+          deleteObject(ref(storage, `userFiles/${user.uid}/${file.name}`))
+        ),
+      ]);
+
+      console.log(
+        "All files deleted successfully from userDetails and Storage"
+      );
+    } catch (e) {
+      console.error("Error deleting files: ", e);
+      // Handle any errors appropriately, e.g., display error messages to the user
     }
   };
 
@@ -155,7 +190,7 @@ const useAuth = () => {
   };
 
   // upload file to the storage
-  const uploadFile = async (file) => {
+  const uploadFile = async (file, setUploading) => {
     if (!user) {
       console.error("User not authenticated");
       return;
@@ -165,10 +200,7 @@ const useAuth = () => {
       (existingFile) => existingFile.name === file.name
     );
     if (existingFile) {
-      console.warn(
-        "File with the same name already exists. Please choose a different file."
-      );
-      return;
+      throw new FileUploadError("File Already Exist", "191");
     }
 
     // Create a storage reference with the user's UID as the folder
@@ -199,11 +231,16 @@ const useAuth = () => {
         async () => {
           // Upload completed successfully, get download URL
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-
+          const fileSize = (await getMetadata(uploadTask.snapshot.ref)).size;
           // Update userDetails in Firestore with the new file
           const updatedFiles = [
             ...userDetails.files,
-            { name: file.name, url: downloadURL },
+            {
+              name: file.name,
+              url: downloadURL,
+              available: true,
+              size: fileSize,
+            },
           ];
           setUserDetails({ ...userDetails, files: updatedFiles });
 
@@ -217,6 +254,7 @@ const useAuth = () => {
           }
 
           console.log("File uploaded successfully! Download URL:", downloadURL);
+          setUploading(false);
         }
       );
     } catch (e) {
@@ -233,6 +271,7 @@ const useAuth = () => {
     signup,
     deleteFileUserDetails,
     uploadFile,
+    deleteMultipleFilesUserDetails,
   };
 };
 

@@ -12,12 +12,13 @@ import csvImg from "../assets/csv-file.svg";
 import CloseIcon from "@mui/icons-material/Close";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { AuthContext } from "./AuthProvider";
+import PropTypes from "prop-types";
 
-function Dropzone() {
+function Dropzone({ setUploading, setUploadSuccess, setUploadErrorMsg }) {
   const [file, setFile] = useState(null);
   const { auth } = useContext(AuthContext);
 
-  console.log(auth.uploadFile);
+  // console.log(auth.uploadFile);
 
   const onDrop = (acceptedFiles) => {
     if (acceptedFiles.length > 1) {
@@ -26,6 +27,23 @@ function Dropzone() {
     }
 
     setFile(acceptedFiles[0]);
+  };
+
+  const uploadFileHandler = async () => {
+    try {
+      setUploading(true);
+      await auth.uploadFile(file, setUploading);
+      setUploadSuccess(true);
+    } catch (error) {
+      setUploadSuccess(false);
+      switch (error.code) {
+        case "191":
+          setUploadErrorMsg("File already exist!");
+          break;
+      }
+    } finally {
+      setFile(null);
+    }
   };
 
   const { getRootProps, getInputProps, isDragActive, isDragReject } =
@@ -41,7 +59,7 @@ function Dropzone() {
   };
 
   return (
-    <>
+    <Box sx={{ display: "flex", flexDirection: "column", rowGap: 1 }}>
       <Box
         {...getRootProps()}
         className="dropzone"
@@ -50,7 +68,7 @@ function Dropzone() {
           p: 2,
           borderRadius: 2,
           textAlign: "center",
-          width: "500px",
+          width: "100%",
           height: "200px",
           cursor: "pointer",
           display: "flex",
@@ -96,13 +114,20 @@ function Dropzone() {
       <Button
         variant="contained"
         startIcon={<CloudUploadIcon />}
-        onClick={() => auth.uploadFile(file)}
+        onClick={() => uploadFileHandler()}
         disabled={file === null ? true : false}
+        size="full"
       >
         Upload
       </Button>
-    </>
+    </Box>
   );
 }
+
+Dropzone.propTypes = {
+  setUploading: PropTypes.func,
+  setUploadSuccess: PropTypes.func,
+  setUploadErrorMsg: PropTypes.func,
+};
 
 export default Dropzone;

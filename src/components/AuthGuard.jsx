@@ -4,7 +4,7 @@ import { AuthContext } from "./AuthProvider";
 
 const AuthGuard = () => {
   const { auth } = useContext(AuthContext);
-  console.log("from auth Guard", auth.user);
+  // console.log("from auth Guard", auth.user);
   if (!auth.user) {
     console.log("Blocked");
     return <Navigate to="/login" replace />;
