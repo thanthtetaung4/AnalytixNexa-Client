@@ -24,14 +24,17 @@ const PaginationTable = ({ files, updateResult }) => {
   };
 
   const handleAnalyze = async (filePath, fileName) => {
-    await fetch("http://127.0.0.1:5000/api/receive_string", {
+    await fetch("https://analytixnexa.azurewebsites.net/api/receive_string", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ my_string: filePath }),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (response.ok) return response.json();
+        throw Error;
+      })
       .then(async (data) => {
         console.log(data);
         const result = data;
@@ -40,7 +43,7 @@ const PaginationTable = ({ files, updateResult }) => {
         // Handle the API response as needed
       })
       .catch((error) => {
-        console.error("fuck:", error);
+        console.error("Error:", error);
       });
   };
 

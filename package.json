@@ -14,9 +14,13 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.15.4",
     "@mui/material": "^5.15.4",
+    "@mui/x-charts": "^6.19.3",
     "@mui/x-data-grid": "^6.19.2",
+    "chart.js": "^4.4.1",
+    "file-saver": "^2.0.5",
     "firebase": "^10.7.1",
     "react": "^18.2.0",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-router-dom": "^6.21.2"

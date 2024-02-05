@@ -268,14 +268,18 @@ const useAuth = () => {
       if (!user) {
         throw new Error("User not authenticated");
       }
-      const myResult = { ...result, fileName: fileName };
+
+      // Update the userDetails document in Firestore
+      const myResult = {
+        ...result,
+        fileName: fileName,
+        createdAt: Date.now(),
+      };
       // Add the new result to the existing results array
       const updatedResults = [...userDetails.results, myResult];
       const updatedFiles = userDetails.files.map((file) =>
         file.name === fileName ? { ...file, available: false } : file
       );
-
-      // Update the userDetails document in Firestore
       await updateDoc(doc(db, "userDetails", user.uid), {
         results: updatedResults,
         files: updatedFiles,
