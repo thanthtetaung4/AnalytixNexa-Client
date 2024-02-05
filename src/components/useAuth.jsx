@@ -33,7 +33,7 @@ const useAuth = () => {
   // console.log("user", user);
   // console.log("current user", auth.currentUser);
   // console.log("Current data: ", userDetails);
-  console.log(userDetails);
+  // console.log(userDetails);
 
   const provider = new GoogleAuthProvider();
   useEffect(() => {

@@ -1,7 +1,19 @@
 import "../../components/AuthProvider";
-import { Paper, Box, Typography, Grid } from "@mui/material";
+import {
+  Paper,
+  Box,
+  Typography,
+  Grid,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from "@mui/material";
 
 import { useMediaQuery, useTheme } from "@mui/material";
+
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import MyChart from "../../components/MyChart";
+import TemporalChart from "../../components/TemporalChart";
 import { AuthContext } from "../../components/AuthProvider";
 import { useContext, useEffect, useState } from "react";
 
@@ -11,6 +23,7 @@ function Dashboard() {
   const { auth } = useContext(AuthContext);
   const theme = useTheme();
   const user = auth.user;
+  const userDetails = auth.userDetails;
   const [isLoading, setIsLoading] = useState(true);
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
 
@@ -20,7 +33,74 @@ function Dashboard() {
       : setIsLoading(true);
   }, [auth]);
 
-  console.log("From Dashboard", user);
+  // console.log("From Dashboard", user);
+
+  const fileElements = userDetails?.files.map((file) => (
+    <Typography key={file.name}>{file.name}</Typography>
+  ));
+  const result = userDetails?.results[userDetails.results.length - 1];
+  const resultElements = userDetails && (
+    <Box key={result.fileName} sx={{ mb: 1, width: "100%" }}>
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ArrowDropDownIcon />}
+          aria-controls="panel1-content"
+          id="panel1-header"
+        >
+          <Typography>Result of file: {result.fileName}</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Box id="analytix" sx={{ color: "#6DAED6" }}>
+            <Box sx={{ p: 1 }}>
+              <Typography variant="h5">Customer Behaviors Analysis</Typography>
+              <Typography>
+                Unique Customer:
+                {result.customer_behavior_analysis.unique_customer}
+              </Typography>
+            </Box>
+            <Box sx={{ p: 1 }}>
+              <Typography variant="h5">Sales</Typography>
+              <Typography>
+                Average Sale: {result.sale_analysis.average_sale}
+              </Typography>
+              <Typography>
+                Total Sale: {result.sale_analysis.total_sale}
+              </Typography>
+            </Box>
+            <Box sx={{}}>
+              {result.temporal_analysis.temporal_analysis.map((data) => (
+                <Box
+                  key={data.month}
+                  sx={{
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                  component={"div"}
+                >
+                  <TemporalChart analysisData={data} key={data.month} />
+                </Box>
+              ))}
+              <Box
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+                component={"div"}
+              >
+                <MyChart
+                  analysisData={
+                    result.product_preference_analysis.product_count
+                  }
+                />
+              </Box>
+            </Box>
+          </Box>
+        </AccordionDetails>
+      </Accordion>
+    </Box>
+  );
 
   return (
     <>
@@ -29,34 +109,27 @@ function Dashboard() {
       ) : (
         isDesktop && (
           <Box component="div">
-            <Grid
-              container
-              spacing={2}
-              justifyContent="center"
-              alignItems="center"
-            >
+            <Grid container spacing={2} justifyContent="center">
               <Grid item xs={12}>
                 <Typography variant="h4" component="h1" sx={{ p: 2 }}>
-                  Welcome back {user.displayName}
+                  Welcome {user.displayName}
                 </Typography>
               </Grid>
-              <Grid item xs={6}>
-                <Paper
-                  elevation={0}
-                  sx={{ p: 5, background: "red" }}
-                  component="div"
-                >
+              <Grid item xs={8}>
+                <Paper elevation={0} sx={{ p: 5 }} component="div">
                   <Typography variant="h5" component="h2">
                     Recent Results
                   </Typography>
+                  {resultElements}
                 </Paper>
               </Grid>
 
-              <Grid item xs={6}>
+              <Grid item xs={4}>
                 <Paper elevation={0} sx={{ p: 5 }} component="div">
                   <Typography variant="h5" component="h2">
                     Files
                   </Typography>
+                  {fileElements}
                 </Paper>
               </Grid>
             </Grid>
