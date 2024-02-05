@@ -14,7 +14,6 @@ import { doc, getDoc, setDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import {
   ref,
   uploadBytesResumable,
-  getDownloadURL,
   deleteObject,
   getMetadata,
 } from "firebase/storage";
@@ -230,16 +229,17 @@ const useAuth = () => {
         },
         async () => {
           // Upload completed successfully, get download URL
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
           const fileSize = (await getMetadata(uploadTask.snapshot.ref)).size;
+          const path = (await getMetadata(uploadTask.snapshot.ref)).fullPath;
           // Update userDetails in Firestore with the new file
           const updatedFiles = [
             ...userDetails.files,
             {
               name: file.name,
-              url: downloadURL,
               available: true,
               size: fileSize,
+              path: path,
             },
           ];
           setUserDetails({ ...userDetails, files: updatedFiles });
@@ -253,12 +253,37 @@ const useAuth = () => {
             console.log("Error updating userDetails in Firestore: ", e);
           }
 
-          console.log("File uploaded successfully! Download URL:", downloadURL);
+          console.log("File uploaded successfully! Path:", path);
           setUploading(false);
         }
       );
     } catch (e) {
       console.error("Error preparing upload task: ", e);
+    }
+  };
+
+  const updateResult = async (result, fileName) => {
+    try {
+      // Check for user authentication
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+      const myResult = { ...result, fileName: fileName };
+      // Add the new result to the existing results array
+      const updatedResults = [...userDetails.results, myResult];
+      const updatedFiles = userDetails.files.map((file) =>
+        file.name === fileName ? { ...file, available: false } : file
+      );
+
+      // Update the userDetails document in Firestore
+      await updateDoc(doc(db, "userDetails", user.uid), {
+        results: updatedResults,
+        files: updatedFiles,
+      });
+
+      console.log("User details updated with new result");
+    } catch (error) {
+      console.error("Error updating user details:", error);
     }
   };
 
@@ -272,6 +297,7 @@ const useAuth = () => {
     deleteFileUserDetails,
     uploadFile,
     deleteMultipleFilesUserDetails,
+    updateResult,
   };
 };
 

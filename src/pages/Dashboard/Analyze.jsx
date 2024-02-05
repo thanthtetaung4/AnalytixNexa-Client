@@ -8,6 +8,7 @@ import {
   Button,
   IconButton,
   keyframes,
+  Alert,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import Dropzone from "../../components/DropZone";
@@ -108,6 +109,24 @@ const Analyze = () => {
               rowGap: 1,
             }}
           >
+            <Box sx={{ width: "100%" }}>
+              <Alert severity="warning">
+                Make sure your dataset is &#34;<strong>csv</strong>&#34; type
+                and includes &#34;
+                <strong>product,category,unit_price,sale,customer,date</strong>
+                &#34; or it will not work! &nbsp;
+                <span
+                  onClick={() => console.log("hi")}
+                  style={{
+                    textDecoration: "underline",
+                    userSelect: "none",
+                    cursor: "pointer",
+                  }}
+                >
+                  Click Here to Download the Example!
+                </span>
+              </Alert>
+            </Box>
             <Button
               onClick={() => toggleShow()}
               variant="outlined"
@@ -135,7 +154,10 @@ const Analyze = () => {
               />
             </Box>
           </Box>
-          <PaginationTable files={auth.userDetails.files} />
+          <PaginationTable
+            files={auth.userDetails.files}
+            updateResult={auth.updateResult}
+          />
         </Box>
       )}
     </main>

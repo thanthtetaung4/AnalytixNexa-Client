@@ -10,7 +10,7 @@ import {
 import { useState } from "react";
 import PropTypes from "prop-types";
 
-const PaginationTable = ({ files }) => {
+const PaginationTable = ({ files, updateResult }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -23,8 +23,29 @@ const PaginationTable = ({ files }) => {
     setPage(0);
   };
 
+  const handleAnalyze = async (filePath, fileName) => {
+    await fetch("http://127.0.0.1:5000/api/receive_string", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ my_string: filePath }),
+    })
+      .then((response) => response.json())
+      .then(async (data) => {
+        console.log(data);
+        const result = data;
+        console.log(result);
+        await updateResult(result, fileName);
+        // Handle the API response as needed
+      })
+      .catch((error) => {
+        console.error("fuck:", error);
+      });
+  };
+
   const rows =
-    files.length > 0 ? (
+    files.filter((file) => file.available).length > 0 ? (
       files.map(
         (file, index) =>
           file.available && (
@@ -32,7 +53,13 @@ const PaginationTable = ({ files }) => {
               <TableCell>{index + 1}</TableCell>
               <TableCell>{file.name}</TableCell>
               <TableCell align="right">
-                <Button onClick={() => console.log(file)}>Analyze</Button>
+                <Button
+                  onClick={() => {
+                    handleAnalyze(file.path, file.name);
+                  }}
+                >
+                  Analyze
+                </Button>
               </TableCell>
             </TableRow>
           )
@@ -76,6 +103,7 @@ const PaginationTable = ({ files }) => {
 
 PaginationTable.propTypes = {
   files: PropTypes.array,
+  updateResult: PropTypes.func,
 };
 
 export default PaginationTable;
