@@ -16,6 +16,9 @@ import { AuthContext } from "../../components/AuthProvider";
 import PaginationTable from "../../components/PaginationTable";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import { ref, getDownloadURL } from "firebase/storage";
+
+import { storage } from "../../components/firebase";
 
 const Analyze = () => {
   const { auth } = useContext(AuthContext);
@@ -38,6 +41,35 @@ const Analyze = () => {
 
   const toggleShow = () => {
     setIsShow((prev) => !prev);
+  };
+
+  const handleDemoDownload = () => {
+    console.log("Clicked");
+    getDownloadURL(ref(storage, "demoFiles/dummy-dataset-4.csv"))
+      .then((url) => {
+        if (url) {
+          const xhr = new XMLHttpRequest();
+          xhr.responseType = "blob";
+          xhr.onload = (event) => {
+            const blob = xhr.response;
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "dummy-dataset-4.csv";
+            link.click();
+          };
+          xhr.onerror = (error) => {
+            console.error("Error fetching file:", error);
+          };
+          xhr.open("GET", url);
+          xhr.send();
+        } else {
+          console.error("Failed to get download URL");
+        }
+      })
+      .catch((error) => {
+        console.error("Error getting download URL:", error);
+      });
   };
 
   const myAnimation = keyframes`
@@ -116,7 +148,7 @@ const Analyze = () => {
                 <strong>product,category,unit_price,sale,customer,date</strong>
                 &#34; or it will not work! &nbsp;
                 <span
-                  onClick={() => console.log("hi")}
+                  onClick={() => handleDemoDownload()}
                   style={{
                     textDecoration: "underline",
                     userSelect: "none",
