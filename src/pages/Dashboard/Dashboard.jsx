@@ -24,6 +24,13 @@ function Dashboard() {
   const theme = useTheme();
   const user = auth.user;
   const userDetails = auth.userDetails;
+  const [result, setResult] = useState(
+    userDetails !== null
+      ? userDetails.results.length > 0
+        ? userDetails.results[userDetails.results.length - 1]
+        : undefined
+      : undefined
+  );
   const [isLoading, setIsLoading] = useState(true);
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
 
@@ -31,46 +38,67 @@ function Dashboard() {
     firebaseAuth.currentUser !== null
       ? setIsLoading(false)
       : setIsLoading(true);
-  }, [auth]);
+
+    userDetails !== null
+      ? userDetails.results.length > 0
+        ? setResult(userDetails.results[userDetails.results.length - 1])
+        : undefined
+      : undefined;
+  }, [auth, userDetails]);
 
   // console.log("From Dashboard", user);
+  console.log("result is", result);
 
   const fileElements = userDetails?.files.map((file) => (
     <Typography key={file.name}>{file.name}</Typography>
   ));
-  const result = userDetails?.results[userDetails.results.length - 1];
+
   const resultElements = userDetails && (
-    <Box key={result.fileName} sx={{ mb: 1, width: "100%" }}>
-      <Accordion>
-        <AccordionSummary
-          expandIcon={<ArrowDropDownIcon />}
-          aria-controls="panel1-content"
-          id="panel1-header"
-        >
-          <Typography>Result of file: {result.fileName}</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Box id="analytix" sx={{ color: "#6DAED6" }}>
-            <Box sx={{ p: 1 }}>
-              <Typography variant="h5">Customer Behaviors Analysis</Typography>
-              <Typography>
-                Unique Customer:
-                {result.customer_behavior_analysis.unique_customer}
-              </Typography>
-            </Box>
-            <Box sx={{ p: 1 }}>
-              <Typography variant="h5">Sales</Typography>
-              <Typography>
-                Average Sale: {result.sale_analysis.average_sale}
-              </Typography>
-              <Typography>
-                Total Sale: {result.sale_analysis.total_sale}
-              </Typography>
-            </Box>
-            <Box sx={{}}>
-              {result.temporal_analysis.temporal_analysis.map((data) => (
+    <Box key={result?.fileName} sx={{ mb: 1, width: "100%" }}>
+      {result ? (
+        <Accordion>
+          <AccordionSummary
+            expandIcon={<ArrowDropDownIcon />}
+            aria-controls="panel1-content"
+            id="panel1-header"
+          >
+            <Typography>Result of file: {result.fileName}</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Box id="analytix" sx={{ color: "#6DAED6" }}>
+              <Box sx={{ p: 1 }}>
+                <Typography variant="h5">
+                  Customer Behaviors Analysis
+                </Typography>
+                <Typography>
+                  Unique Customer:
+                  {result.customer_behavior_analysis.unique_customer}
+                </Typography>
+              </Box>
+              <Box sx={{ p: 1 }}>
+                <Typography variant="h5">Sales</Typography>
+                <Typography>
+                  Average Sale: {result.sale_analysis.average_sale}
+                </Typography>
+                <Typography>
+                  Total Sale: {result.sale_analysis.total_sale}
+                </Typography>
+              </Box>
+              <Box sx={{}}>
+                {result.temporal_analysis.temporal_analysis.map((data) => (
+                  <Box
+                    key={data.month}
+                    sx={{
+                      width: "100%",
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                    component={"div"}
+                  >
+                    <TemporalChart analysisData={data} key={data.month} />
+                  </Box>
+                ))}
                 <Box
-                  key={data.month}
                   sx={{
                     width: "100%",
                     display: "flex",
@@ -78,27 +106,19 @@ function Dashboard() {
                   }}
                   component={"div"}
                 >
-                  <TemporalChart analysisData={data} key={data.month} />
+                  <MyChart
+                    analysisData={
+                      result.product_preference_analysis.product_count
+                    }
+                  />
                 </Box>
-              ))}
-              <Box
-                sx={{
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-                component={"div"}
-              >
-                <MyChart
-                  analysisData={
-                    result.product_preference_analysis.product_count
-                  }
-                />
               </Box>
             </Box>
-          </Box>
-        </AccordionDetails>
-      </Accordion>
+          </AccordionDetails>
+        </Accordion>
+      ) : (
+        <Typography> No result to show analyze now!</Typography>
+      )}
     </Box>
   );
 
@@ -116,7 +136,11 @@ function Dashboard() {
                 </Typography>
               </Grid>
               <Grid item xs={8}>
-                <Paper elevation={0} sx={{ p: 5 }} component="div">
+                <Paper
+                  elevation={0}
+                  sx={{ p: 5, backgroundColor: "#6DAED6" }}
+                  component="div"
+                >
                   <Typography variant="h5" component="h2">
                     Recent Results
                   </Typography>
@@ -125,11 +149,19 @@ function Dashboard() {
               </Grid>
 
               <Grid item xs={4}>
-                <Paper elevation={0} sx={{ p: 5 }} component="div">
+                <Paper
+                  elevation={0}
+                  sx={{ p: 5, backgroundColor: "#6DAED6" }}
+                  component="div"
+                >
                   <Typography variant="h5" component="h2">
                     Files
                   </Typography>
-                  {fileElements}
+                  {fileElements?.length > 0 ? (
+                    fileElements
+                  ) : (
+                    <Typography>No file to show upload now!</Typography>
+                  )}
                 </Paper>
               </Grid>
             </Grid>
