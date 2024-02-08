@@ -10,6 +10,7 @@ import {
   CircularProgress,
   Modal,
   Alert,
+  useTheme,
 } from "@mui/material";
 import useAuth from "../components/useAuth";
 import { useEffect, useRef, useState } from "react";
@@ -28,6 +29,7 @@ function SignUp() {
   const [isSuccessfulSignUp, setIsSuccessfulSignUp] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const theme = useTheme();
 
   const { signup } = useAuth();
 
@@ -176,7 +178,7 @@ function SignUp() {
           sx={{
             display: "flex",
             alignItems: "center",
-            color: "#fff",
+            color: theme.palette.text.primary,
           }}
         >
           <FormControlLabel
