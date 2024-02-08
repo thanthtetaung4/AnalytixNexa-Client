@@ -6,3 +6,23 @@ a {
 .active-link {
   background-color: #6daed6;
 }
+
+/* width */
+::-webkit-scrollbar {
+  width: 3px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #233142;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #78b4d9;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
