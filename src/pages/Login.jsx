@@ -174,7 +174,7 @@ const Login = () => {
             }}
             onClick={() => navigate("/signup")}
           >
-            Don&apos;t have an Account? Sing up now.
+            Don&apos;t have an Account? Sign up now.
           </MUILink>
           <Modal open={loading}>
             <ModalBox

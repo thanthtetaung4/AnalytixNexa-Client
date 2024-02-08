@@ -94,7 +94,7 @@ const Account = () => {
                   </TableCell>
                   <TableCell sx={{ border: "none" }} align="center">
                     <TextField
-                      placeholder="Enter your new name"
+                      placeholder="Enter your new password"
                       type="password"
                       variant="standard"
                       value={newPassword}
@@ -113,7 +113,7 @@ const Account = () => {
                   </TableCell>
                   <TableCell align="center" sx={{ border: "none" }}>
                     <TextField
-                      placeholder="Confirm your name"
+                      placeholder="Confirm your password"
                       type="password"
                       variant="standard"
                       value={confirmPassword}
