@@ -1,5 +1,11 @@
+import NightModeToggle from "../../components/NightModeToggle";
 const Settings = () => {
-  return <h1>Settings</h1>;
+  return (
+    <main>
+      <h1>Settings</h1>
+      <NightModeToggle />
+    </main>
+  );
 };
 
 export default Settings;

@@ -50,6 +50,7 @@ const Analyze = () => {
         if (url) {
           const xhr = new XMLHttpRequest();
           xhr.responseType = "blob";
+          // eslint-disable-next-line no-unused-vars
           xhr.onload = (event) => {
             const blob = xhr.response;
             const url = window.URL.createObjectURL(blob);

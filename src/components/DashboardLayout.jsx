@@ -70,14 +70,15 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
-const ModalBox = styled(Box)(() => ({
+const ModalBox = styled(Box)(({ theme }) => ({
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: 400,
-  backgroundColor: "#1F2A40",
-  border: "2px solid #1F2A40",
+  backgroundColor: theme.palette.modal.main,
+  border: "2px solid",
+  borderColor: theme.palette.modal.main,
   borderRadius: 5,
   boxShadow: 24,
   padding: 30,
@@ -157,9 +158,11 @@ function DashboardLayout() {
       <Drawer
         variant="permanent"
         open={open}
-        PaperProps={{
-          sx: { backgroundColor: "primary.dark" },
-        }}
+        PaperProps={
+          {
+            // sx: { backgroundColor: "primary.dark" },
+          }
+        }
       >
         {open ? (
           <DrawerHeader>
@@ -182,7 +185,7 @@ function DashboardLayout() {
         ) : (
           <DrawerHeader>
             <IconButton
-              color="inherit"
+              // color="inherit"
               aria-label="open drawer"
               onClick={handleDrawerOpen}
             >

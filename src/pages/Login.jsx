@@ -31,7 +31,7 @@ const Login = () => {
   const { login, loginWithGoogle } = useAuth();
   const [loading, setLoading] = useState(false);
 
-  console.log("Hi from login");
+  console.log(theme.palette.text.primary);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -148,7 +148,7 @@ const Login = () => {
             sx={{
               display: "flex",
               alignItems: "center",
-              color: "#fff",
+              color: theme.palette.text.primary,
             }}
           >
             <FormControlLabel

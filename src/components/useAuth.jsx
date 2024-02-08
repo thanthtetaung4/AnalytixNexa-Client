@@ -291,6 +291,12 @@ const useAuth = () => {
     }
   };
 
+  const changeTheme = async (newTheme) => {
+    await updateDoc(doc(db, "userDetails", user.uid), {
+      theme: newTheme,
+    });
+  };
+
   return {
     user,
     userDetails,
@@ -302,6 +308,7 @@ const useAuth = () => {
     uploadFile,
     deleteMultipleFilesUserDetails,
     updateResult,
+    changeTheme,
   };
 };
 
