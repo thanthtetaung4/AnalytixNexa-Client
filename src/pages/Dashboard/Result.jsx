@@ -22,7 +22,7 @@ const Result = () => {
   }, [results]);
 
   const resultElements = results?.map((result) => (
-    <Box key={result.fileName} sx={{ mb: 1, width: "100%" }}>
+    <Box key={result.fileName} sx={{ mb: 1, width: "100%", overflowX: "none" }}>
       <Accordion>
         <AccordionSummary
           expandIcon={<ArrowDropDownIcon />}
@@ -49,14 +49,19 @@ const Result = () => {
                 Total Sale: {result.sale_analysis.total_sale}
               </Typography>
             </Box>
-            <Box sx={{}}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
               {result.temporal_analysis.temporal_analysis.map((data) => (
                 <Box
                   key={data.month}
                   sx={{
-                    width: "100%",
-                    display: "flex",
-                    justifyContent: "center",
+                    width: "90%",
                   }}
                   component={"div"}
                 >
@@ -65,9 +70,7 @@ const Result = () => {
               ))}
               <Box
                 sx={{
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "center",
+                  width: "90%",
                 }}
                 component={"div"}
               >
@@ -85,7 +88,7 @@ const Result = () => {
   ));
 
   return (
-    <main>
+    <Box component={"main"} sx={{ overflowX: "none" }}>
       {loading ? (
         <Box>
           <Typography variant="h4">Loading...</Typography>
@@ -96,7 +99,7 @@ const Result = () => {
           {resultElements}
         </Box>
       )}
-    </main>
+    </Box>
   );
 };
 

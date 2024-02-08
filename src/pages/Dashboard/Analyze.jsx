@@ -85,7 +85,7 @@ const Analyze = () => {
   `;
 
   return (
-    <main>
+    <Box component={"main"}>
       {loading ? (
         <h1>Loading</h1>
       ) : (
@@ -193,7 +193,7 @@ const Analyze = () => {
           />
         </Box>
       )}
-    </main>
+    </Box>
   );
 };
 
