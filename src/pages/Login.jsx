@@ -167,7 +167,11 @@ const Login = () => {
             Sign In with Google <GoogleIcon sx={{ ml: 1 }} />
           </Button>
           <MUILink
-            sx={{ cursor: "pointer", userSelect: "none" }}
+            sx={{
+              cursor: "pointer",
+              userSelect: "none",
+              color: theme.palette.text.primary,
+            }}
             onClick={() => navigate("/signup")}
           >
             Don&apos;t have an Account? Sing up now.
