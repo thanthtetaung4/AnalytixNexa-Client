@@ -262,7 +262,7 @@ const useAuth = () => {
     }
   };
 
-  const updateResult = async (result, fileName) => {
+  const updateResult = async (result, fileName, setAnalysing) => {
     try {
       // Check for user authentication
       if (!user) {
@@ -284,7 +284,7 @@ const useAuth = () => {
         results: updatedResults,
         files: updatedFiles,
       });
-
+      setAnalysing(false);
       console.log("User details updated with new result");
     } catch (error) {
       console.error("Error updating user details:", error);

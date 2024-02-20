@@ -31,6 +31,13 @@ const Analyze = () => {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [uploadErrorMsg, setUploadErrorMsg] = useState("");
 
+  const [analysedModalOpen, setAnalysedModalOpen] = useState(false);
+  const handleAnalyseModal = () => setAnalysedModalOpen(false);
+
+  const [analysing, setAnalysing] = useState(false);
+  const [analyseSuccess, setAnalyseSuccess] = useState(false);
+  const [analyseError, setAnalyseError] = useState("");
+
   useEffect(() => {
     files && setLoading(false);
   }, [files]);
@@ -38,6 +45,10 @@ const Analyze = () => {
   useEffect(() => {
     uploading && setOpen(true);
   }, [uploading]);
+  console.log(analysing);
+  useEffect(() => {
+    analysing && setAnalysedModalOpen(true);
+  }, [analysing]);
 
   const toggleShow = () => {
     setIsShow((prev) => !prev);
@@ -93,6 +104,50 @@ const Analyze = () => {
           <Typography variant="h4" sx={{ mb: 1 }}>
             Analyze
           </Typography>
+
+          <Modal
+            open={analysedModalOpen}
+            onClose={
+              uploading
+                ? () => setAnalysedModalOpen(true)
+                : () => handleAnalyseModal()
+            }
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <ModalBox>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  rowGap: 2,
+                  backgroundColor: "#233142",
+                  borderRadius: 1,
+                  p: 2,
+                }}
+              >
+                <IconButton
+                  onClick={handleAnalyseModal}
+                  sx={{
+                    maxWidth: "45px",
+                    marginLeft: "auto",
+                  }}
+                >
+                  <Close />
+                </IconButton>
+                <Box sx={{ width: "200px", height: "100px" }}>
+                  <Typography>
+                    {analysing
+                      ? "Analysing"
+                      : analyseSuccess
+                      ? "Successfully Analysed"
+                      : "Analysing Fail"}
+                  </Typography>
+                  <Typography>{analyseError}</Typography>
+                </Box>
+              </Box>
+            </ModalBox>
+          </Modal>
 
           <Modal
             open={open}
@@ -190,6 +245,9 @@ const Analyze = () => {
           <PaginationTable
             files={auth.userDetails.files}
             updateResult={auth.updateResult}
+            setAnalysing={setAnalysing}
+            setAnalyseSuccess={setAnalyseSuccess}
+            setAnalyseError={setAnalyseError}
           />
         </Box>
       )}

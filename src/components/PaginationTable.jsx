@@ -10,7 +10,13 @@ import {
 import { useState } from "react";
 import PropTypes from "prop-types";
 
-const PaginationTable = ({ files, updateResult }) => {
+const PaginationTable = ({
+  files,
+  updateResult,
+  setAnalysing,
+  setAnalyseSuccess,
+  setAnalyseError,
+}) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -39,11 +45,14 @@ const PaginationTable = ({ files, updateResult }) => {
         console.log(data);
         const result = data;
         console.log(result);
-        await updateResult(result, fileName);
+        await updateResult(result, fileName, setAnalysing);
+
+        setAnalyseSuccess(true);
         // Handle the API response as needed
       })
       .catch((error) => {
         console.error("Error:", error);
+        setAnalyseError(error);
       });
   };
 
@@ -58,6 +67,9 @@ const PaginationTable = ({ files, updateResult }) => {
               <TableCell align="right">
                 <Button
                   onClick={() => {
+                    console.log("hi");
+
+                    setAnalysing(true);
                     handleAnalyze(file.path, file.name);
                   }}
                 >
