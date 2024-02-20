@@ -9,6 +9,7 @@ import {
   browserSessionPersistence,
   updateProfile,
   sendEmailVerification,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { doc, getDoc, setDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import {
@@ -297,6 +298,10 @@ const useAuth = () => {
     });
   };
 
+  const handlePwdReset = async () => {
+    sendPasswordResetEmail(auth, user.email);
+  };
+
   return {
     user,
     userDetails,
@@ -309,6 +314,7 @@ const useAuth = () => {
     deleteMultipleFilesUserDetails,
     updateResult,
     changeTheme,
+    handlePwdReset,
   };
 };
 

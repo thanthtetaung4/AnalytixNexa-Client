@@ -15,10 +15,8 @@ import { updateProfile } from "firebase/auth";
 import useAuth from "../../components/useAuth";
 
 const Account = () => {
-  const [newName, setNewName] = useState(null);
-  const [newPassword, setNewPassword] = useState(null);
-  const [confirmPassword, setConfirmPassword] = useState(null);
-  const { user } = useAuth();
+  const [newName, setNewName] = useState("");
+  const { user, handlePwdReset } = useAuth();
 
   const handleNameChange = async () => {
     await updateProfile(user, {
@@ -87,47 +85,19 @@ const Account = () => {
                   </TableCell>
                 </TableRow>
                 <TableRow sx={{ border: "none" }}>
-                  <TableCell sx={{ border: "none" }}>
+                  <TableCell>
                     <Typography variant="body" component="h3">
                       Password
                     </Typography>
                   </TableCell>
-                  <TableCell sx={{ border: "none" }} align="center">
-                    <TextField
-                      placeholder="Enter your new password"
-                      type="password"
-                      variant="standard"
-                      value={newPassword}
-                      sx={{
-                        width: "50%",
-                      }}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                    />
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell sx={{ border: "none" }}>
-                    <Typography variant="body" component="h3">
-                      Password Confirmation
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="center" sx={{ border: "none" }}>
-                    <TextField
-                      placeholder="Confirm your password"
-                      type="password"
-                      variant="standard"
-                      value={confirmPassword}
-                      sx={{
-                        width: "50%",
-                      }}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                    />
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell align="right" colSpan={2}>
-                    <Button variant="contained" size="large" sx={{ mr: 17 }}>
-                      Reset Password
+                  <TableCell align="right">
+                    <Button
+                      variant="contained"
+                      size="large"
+                      sx={{ mr: 17 }}
+                      onClick={handlePwdReset}
+                    >
+                      Send Password Reset Email
                     </Button>
                   </TableCell>
                 </TableRow>
