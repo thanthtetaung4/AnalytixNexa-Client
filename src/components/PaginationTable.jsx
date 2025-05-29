@@ -30,7 +30,7 @@ const PaginationTable = ({
   };
 
   const handleAnalyze = async (filePath, fileName) => {
-    await fetch("https://analytixnexa.azurewebsites.net/api/receive_string", {
+    await fetch("https://analytixnexa-api.onrender.com/api/receive_string", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
