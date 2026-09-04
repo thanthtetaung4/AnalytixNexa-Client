@@ -1,9 +1,11 @@
 import { BrowserRouter } from "react-router-dom";
-import AppRoutes from "./components/AppRoutes";
-import { AuthProvider } from "./components/AuthProvider";
 import { CssBaseline } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
-// import { useState } from "react";
+
+import AppRoutes from "./components/AppRoutes";
+import RouteTelemetry from "./observability/RouteTelemetry";
+import { AuthProvider } from "./components/AuthProvider";
+import { WorkspaceProvider } from "./components/WorkspaceProvider";
 import { useThemeContext } from "./theme/ThemeContextProvider";
 
 function App() {
@@ -11,12 +13,18 @@ function App() {
 
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <AppRoutes />
-        </ThemeProvider>
-      </BrowserRouter>
+      {/* datasets and analyses are per-user, so this sits inside the auth
+          provider and resets when the session changes */}
+      <WorkspaceProvider>
+        <BrowserRouter>
+          <ThemeProvider theme={theme}>
+            <CssBaseline enableColorScheme />
+            {/* inside the router, so it can see client-side navigations */}
+            <RouteTelemetry />
+            <AppRoutes />
+          </ThemeProvider>
+        </BrowserRouter>
+      </WorkspaceProvider>
     </AuthProvider>
   );
 }

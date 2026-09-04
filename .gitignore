@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Recorded demo artefacts. Regenerate with `npm run demo`; see demo/README.md
+# for whether any of them belong in the repo (usually: upload the mp4 to GitHub
+# instead of committing it).
+demo/out/

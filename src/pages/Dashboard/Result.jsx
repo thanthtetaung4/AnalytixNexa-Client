@@ -1,103 +1,90 @@
-import { useContext, useEffect, useState, useRef } from "react";
-import { AuthContext } from "../../components/AuthProvider";
+import { Link as RouterLink } from "react-router-dom";
+import { Alert, Box, Button } from "@mui/material";
+import QueryStatsRoundedIcon from "@mui/icons-material/QueryStatsRounded";
+import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
+
+import useWorkspace from "../../components/useWorkspace";
+import ResultPanel from "../../components/ResultPanel";
 import {
-  Box,
-  Typography,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-} from "@mui/material";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import MyChart from "../../components/MyChart";
-import TemporalChart from "../../components/TemporalChart";
+  EmptyState,
+  GlassCard,
+  LoadingScreen,
+  PageHeader,
+} from "../../components/ui";
 
 const Result = () => {
-  const { auth } = useContext(AuthContext);
-  const results = auth.userDetails ? auth.userDetails.results : null;
-  const [loading, setLoading] = useState(true);
-  const analtixRef = useRef();
+  const { results, loading, error, refresh } = useWorkspace();
 
-  useEffect(() => {
-    results && setLoading(false);
-  }, [results]);
-
-  const resultElements = results?.map((result) => (
-    <Box key={result.fileName} sx={{ mb: 1, width: "100%", overflowX: "none" }}>
-      <Accordion>
-        <AccordionSummary
-          expandIcon={<ArrowDropDownIcon />}
-          aria-controls="panel1-content"
-          id="panel1-header"
-        >
-          <Typography>Result of file: {result.fileName}</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Box id="analytix" ref={analtixRef} sx={{ color: "#6DAED6" }}>
-            <Box sx={{ p: 1 }}>
-              <Typography variant="h5">Customer Behaviors Analysis</Typography>
-              <Typography>
-                Unique Customer:
-                {result.customer_behavior_analysis.unique_customer}
-              </Typography>
-            </Box>
-            <Box sx={{ p: 1 }}>
-              <Typography variant="h5">Sales</Typography>
-              <Typography>
-                Average Sale: {result.sale_analysis.average_sale}
-              </Typography>
-              <Typography>
-                Total Sale: {result.sale_analysis.total_sale}
-              </Typography>
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {result.temporal_analysis.temporal_analysis.map((data) => (
-                <Box
-                  key={data.month}
-                  sx={{
-                    width: "90%",
-                  }}
-                  component={"div"}
-                >
-                  <TemporalChart analysisData={data} key={data.month} />
-                </Box>
-              ))}
-              <Box
-                sx={{
-                  width: "90%",
-                }}
-                component={"div"}
-              >
-                <MyChart
-                  analysisData={
-                    result.product_preference_analysis.product_count
-                  }
-                />
-              </Box>
-            </Box>
-          </Box>
-        </AccordionDetails>
-      </Accordion>
-    </Box>
-  ));
+  if (loading) return <LoadingScreen label="Loading results" />;
 
   return (
-    <Box component={"main"} sx={{ overflowX: "none" }}>
-      {loading ? (
-        <Box>
-          <Typography variant="h4">Loading...</Typography>
-        </Box>
+    <Box component="section">
+      <PageHeader
+        title="Analysis history"
+        subtitle={
+          results.length > 0
+            ? `${results.length} saved ${
+                results.length === 1 ? "analysis" : "analyses"
+              }, newest first. Expand any file to see its full breakdown.`
+            : "Every analysis you run is saved here."
+        }
+        action={
+          results.length > 0 && (
+            <Button
+              component={RouterLink}
+              to="/dashboard/analyze"
+              variant="contained"
+              startIcon={<QueryStatsRoundedIcon />}
+            >
+              New analysis
+            </Button>
+          )
+        }
+      />
+
+      {error && (
+        <Alert
+          severity="error"
+          role="alert"
+          sx={{ mb: 2 }}
+          action={
+            <Button color="inherit" size="small" onClick={() => refresh()}>
+              Retry
+            </Button>
+          }
+        >
+          {error.message || "Could not load your results."}
+        </Alert>
+      )}
+
+      {results.length > 0 ? (
+        // the API returns jobs newest first, so the list order is already right
+        results.map((result, i) => (
+          <ResultPanel
+            key={result.id}
+            result={result}
+            defaultExpanded={i === 0}
+            delay={i * 70}
+          />
+        ))
       ) : (
-        <Box width={"100%"}>
-          <Typography variant="h4">Result</Typography>
-          {resultElements}
-        </Box>
+        <GlassCard padding={{ xs: 2, sm: 3 }}>
+          <EmptyState
+            icon={<InsightsRoundedIcon />}
+            title="No results yet"
+            description="Once you analyse a dataset, its customer, sales and temporal breakdowns will be listed here."
+            action={
+              <Button
+                component={RouterLink}
+                to="/dashboard/analyze"
+                variant="contained"
+                startIcon={<QueryStatsRoundedIcon />}
+              >
+                Analyse a dataset
+              </Button>
+            }
+          />
+        </GlassCard>
       )}
     </Box>
   );

@@ -1,46 +1,44 @@
 import { createTheme } from "@mui/material";
-import React, { useEffect } from "react";
+import React from "react";
 import { getDesignTokens } from "./theme";
-import useAuth from "../components/useAuth";
+
+const STORAGE_KEY = "analytixnexa.theme";
+const DEFAULT_MODE = "dark";
+
+const normalise = (mode) => (mode === "light" ? "light" : DEFAULT_MODE);
+
+/**
+ * Appearance is a device preference, not account data: the API has no place to
+ * hang it and reading it locally means the right palette paints on first frame
+ * instead of after a round trip.
+ */
+const readStoredMode = () => {
+  try {
+    return normalise(window.localStorage.getItem(STORAGE_KEY));
+  } catch {
+    return DEFAULT_MODE;
+  }
+};
 
 export const useColorTheme = () => {
-  const { userDetails, changeTheme } = useAuth();
-  const [mode, setMode] = React.useState(
-    userDetails ? userDetails.theme : "dark"
-  );
+  const [mode, setMode] = React.useState(readStoredMode);
 
-  useEffect(() => {
-    setMode(userDetails?.theme);
-  }, [userDetails]);
-
-  const toggleColorMode = () => {
-    setMode((prevMode) => {
-      const newMode = prevMode === "light" ? "dark" : "light";
-      changeTheme(newMode);
-      return newMode;
+  const toggleColorMode = React.useCallback(() => {
+    setMode((previous) => {
+      const next = previous === "light" ? "dark" : "light";
+      try {
+        window.localStorage.setItem(STORAGE_KEY, next);
+      } catch {
+        // Storage blocked; the choice still applies for this session.
+      }
+      return next;
     });
-  };
-
-  // const modifiedTheme = React.useMemo(
-  //   () =>
-  //     createTheme({
-  //       ...theme,
-  //       palette: {
-  //         ...theme.palette,
-  //         mode,
-  //       },
-  //     }),
-  //   [mode]
-  // );
+  }, []);
 
   const modifiedTheme = React.useMemo(
     () => createTheme(getDesignTokens(mode)),
     [mode]
   );
 
-  return {
-    theme: modifiedTheme,
-    mode,
-    toggleColorMode,
-  };
+  return { theme: modifiedTheme, mode, toggleColorMode };
 };

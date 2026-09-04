@@ -4,7 +4,26 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/analytixnexa.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AnalytixNexa</title>
+    <meta name="theme-color" content="#05060B" />
+    <meta
+      name="description"
+      content="AnalytixNexa — upload a dataset, get customer, sales and temporal analytics in seconds."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <title>AnalytixNexa — Analytics Workspace</title>
+    <style>
+      /* paint the dark ground before React mounts, so there is no white
+         flash; the theme takes over html/body once CssBaseline applies */
+      html {
+        background: #05060b;
+      }
+      body,
+      #root {
+        margin: 0;
+        min-height: 100%;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

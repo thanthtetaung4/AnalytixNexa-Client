@@ -1,256 +1,105 @@
-import { useState, useContext, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Alert, Box, Button } from "@mui/material";
 
-import ModalBox from "../../components/ModalBox";
-import {
-  Box,
-  Typography,
-  Modal,
-  Button,
-  IconButton,
-  keyframes,
-  Alert,
-} from "@mui/material";
-import { Close } from "@mui/icons-material";
-import Dropzone from "../../components/DropZone";
-import { AuthContext } from "../../components/AuthProvider";
+import useWorkspace from "../../components/useWorkspace";
+import UploadPanel from "../../components/UploadPanel";
 import PaginationTable from "../../components/PaginationTable";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
-import { ref, getDownloadURL } from "firebase/storage";
-
-import { storage } from "../../components/firebase";
+import {
+  LoadingScreen,
+  PageHeader,
+  TaskStateDialog,
+} from "../../components/ui";
 
 const Analyze = () => {
-  const { auth } = useContext(AuthContext);
-  const [open, setOpen] = useState(false);
-  const [isShow, setIsShow] = useState(false);
-  const handleClose = () => setOpen(false);
-  const files = auth.userDetails ? auth.userDetails.files : null;
-  const [loading, setLoading] = useState(true);
+  const { files, readyCount, loading, error, refresh } = useWorkspace();
+
+  const [uploadOpen, setUploadOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [uploadErrorMsg, setUploadErrorMsg] = useState("");
 
-  const [analysedModalOpen, setAnalysedModalOpen] = useState(false);
-  const handleAnalyseModal = () => setAnalysedModalOpen(false);
-
+  const [analyseOpen, setAnalyseOpen] = useState(false);
   const [analysing, setAnalysing] = useState(false);
   const [analyseSuccess, setAnalyseSuccess] = useState(false);
   const [analyseError, setAnalyseError] = useState("");
 
   useEffect(() => {
-    files && setLoading(false);
-  }, [files]);
+    uploading && setUploadOpen(true);
+  }, [uploading]);
 
   useEffect(() => {
-    uploading && setOpen(true);
-  }, [uploading]);
-  console.log(analysing);
-  useEffect(() => {
-    analysing && setAnalysedModalOpen(true);
+    analysing && setAnalyseOpen(true);
   }, [analysing]);
 
-  const toggleShow = () => {
-    setIsShow((prev) => !prev);
-  };
-
-  const handleDemoDownload = () => {
-    console.log("Clicked");
-    getDownloadURL(ref(storage, "demoFiles/dummy-dataset-4.csv"))
-      .then((url) => {
-        if (url) {
-          const xhr = new XMLHttpRequest();
-          xhr.responseType = "blob";
-          // eslint-disable-next-line no-unused-vars
-          xhr.onload = (event) => {
-            const blob = xhr.response;
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = "dummy-dataset-4.csv";
-            link.click();
-          };
-          xhr.onerror = (error) => {
-            console.error("Error fetching file:", error);
-          };
-          xhr.open("GET", url);
-          xhr.send();
-        } else {
-          console.error("Failed to get download URL");
-        }
-      })
-      .catch((error) => {
-        console.error("Error getting download URL:", error);
-      });
-  };
-
-  const myAnimation = keyframes`
-    0%{
-      height: 0,
-      
-    }
-    100%{
-      height: 100%,
-      
-    }
-  `;
+  if (loading) return <LoadingScreen label="Loading datasets" />;
 
   return (
-    <Box component={"main"}>
-      {loading ? (
-        <h1>Loading</h1>
-      ) : (
-        <Box>
-          <Typography variant="h4" sx={{ mb: 1 }}>
-            Analyze
-          </Typography>
+    <Box component="section">
+      <PageHeader
+        title="Run an analysis"
+        subtitle={
+          readyCount > 0
+            ? `${readyCount} ${
+                readyCount === 1 ? "dataset is" : "datasets are"
+              } ready. Choose an engine, then pick a file.`
+            : "Upload a CSV of your sales data to generate customer, sales and temporal breakdowns."
+        }
+      />
 
-          <Modal
-            open={analysedModalOpen}
-            onClose={
-              uploading
-                ? () => setAnalysedModalOpen(true)
-                : () => handleAnalyseModal()
-            }
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
-            <ModalBox>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  rowGap: 2,
-                  backgroundColor: "#233142",
-                  borderRadius: 1,
-                  p: 2,
-                }}
-              >
-                <IconButton
-                  onClick={handleAnalyseModal}
-                  sx={{
-                    maxWidth: "45px",
-                    marginLeft: "auto",
-                  }}
-                >
-                  <Close />
-                </IconButton>
-                <Box sx={{ width: "200px", height: "100px" }}>
-                  <Typography>
-                    {analysing
-                      ? "Analysing"
-                      : analyseSuccess
-                      ? "Successfully Analysed"
-                      : "Analysing Fail"}
-                  </Typography>
-                  <Typography>{analyseError}</Typography>
-                </Box>
-              </Box>
-            </ModalBox>
-          </Modal>
-
-          <Modal
-            open={open}
-            onClose={uploading ? () => setOpen(true) : () => handleClose()}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
-            <ModalBox>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  rowGap: 2,
-                  backgroundColor: "#233142",
-                  borderRadius: 1,
-                  p: 2,
-                }}
-              >
-                <IconButton
-                  onClick={handleClose}
-                  sx={{
-                    maxWidth: "45px",
-                    marginLeft: "auto",
-                  }}
-                >
-                  <Close />
-                </IconButton>
-                <Box sx={{ width: "200px", height: "100px" }}>
-                  <Typography>
-                    {uploading
-                      ? "Uploading"
-                      : uploadSuccess
-                      ? "Successfully Uploaded"
-                      : "Upload Fail"}
-                  </Typography>
-                  <Typography>{uploadErrorMsg}</Typography>
-                </Box>
-              </Box>
-            </ModalBox>
-          </Modal>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              rowGap: 1,
-            }}
-          >
-            <Box sx={{ width: "100%" }}>
-              <Alert severity="warning">
-                Make sure your dataset is &#34;<strong>csv</strong>&#34; type
-                and includes &#34;
-                <strong>product,category,unit_price,sale,customer,date</strong>
-                &#34; or it will not work! &nbsp;
-                <span
-                  onClick={() => handleDemoDownload()}
-                  style={{
-                    textDecoration: "underline",
-                    userSelect: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  Click Here to Download the Example!
-                </span>
-              </Alert>
-            </Box>
-            <Button
-              onClick={() => toggleShow()}
-              variant="outlined"
-              startIcon={isShow ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
-              sx={{
-                width: "100%",
-              }}
-            >
-              Upload Area
+      {error && (
+        <Alert
+          severity="error"
+          role="alert"
+          sx={{ mb: 2 }}
+          action={
+            <Button color="inherit" size="small" onClick={() => refresh()}>
+              Retry
             </Button>
-            <Box
-              sx={{
-                height: isShow ? "250px" : 0,
-                opacity: !isShow ? "0" : "1",
-                transition: "ease-in .2s",
-                visibility: !isShow ? "hidden" : "visible",
-                animation: `${myAnimation}`,
-                width: "100%",
-              }}
-            >
-              <Dropzone
-                setUploading={setUploading}
-                setUploadSuccess={setUploadSuccess}
-                setUploadErrorMsg={setUploadErrorMsg}
-              />
-            </Box>
-          </Box>
-          <PaginationTable
-            files={auth.userDetails.files}
-            updateResult={auth.updateResult}
-            setAnalysing={setAnalysing}
-            setAnalyseSuccess={setAnalyseSuccess}
-            setAnalyseError={setAnalyseError}
-          />
-        </Box>
+          }
+        >
+          {error.message || "Could not load your datasets."}
+        </Alert>
       )}
+
+      <UploadPanel
+        setUploading={setUploading}
+        setUploadSuccess={setUploadSuccess}
+        setUploadErrorMsg={setUploadErrorMsg}
+        defaultOpen={readyCount === 0}
+      />
+
+      <PaginationTable
+        files={files}
+        setAnalysing={setAnalysing}
+        setAnalyseSuccess={setAnalyseSuccess}
+        setAnalyseError={setAnalyseError}
+      />
+
+      <TaskStateDialog
+        open={uploadOpen}
+        onClose={() => setUploadOpen(false)}
+        running={uploading}
+        success={uploadSuccess}
+        errorMessage={uploadErrorMsg}
+        runningTitle="Uploading dataset"
+        runningBody="Sending your file to secure storage — keep this tab open."
+        successTitle="Upload complete"
+        successBody="Your dataset is in your library and ready to analyse."
+        failTitle="Upload failed"
+      />
+
+      <TaskStateDialog
+        open={analyseOpen}
+        onClose={() => setAnalyseOpen(false)}
+        running={analysing}
+        success={analyseSuccess}
+        errorMessage={analyseError}
+        runningTitle="Analysing dataset"
+        runningBody="The job is queued on the analysis engine. The statistics engine returns in seconds; the AI analyst inspects your columns and runs several rounds of analysis, which can take a couple of minutes. Keep this tab open."
+        successTitle="Analysis complete"
+        successBody="Your result is saved — open the Results page to explore it."
+        failTitle="Analysis failed"
+      />
     </Box>
   );
 };

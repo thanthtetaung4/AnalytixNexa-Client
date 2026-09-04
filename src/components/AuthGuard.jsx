@@ -1,19 +1,17 @@
-import { Navigate, Outlet } from "react-router-dom";
-import { useContext } from "react";
-import { AuthContext } from "./AuthProvider";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+
+import useAuth from "./useAuth";
+import { LoadingScreen } from "./ui";
 
 const AuthGuard = () => {
-  const { auth } = useContext(AuthContext);
-  // console.log("from auth Guard", auth.user);
-  if (!auth.user) {
-    console.log("Blocked");
-    return <Navigate to="/login" replace />;
-  }
-  if (!auth.user.emailVerified) {
-    // Redirect to verification page if user is not verified
-    return <Navigate to="/verify" replace />;
-  }
+  const { isAuthenticated, isResolving } = useAuth();
+  const location = useLocation();
 
+  if (isResolving) return <LoadingScreen label="Restoring your session" />;
+  if (!isAuthenticated) {
+    // Remember where they were headed so sign-in can return them there.
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  }
   return <Outlet />;
 };
 

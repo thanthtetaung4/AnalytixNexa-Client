@@ -1,67 +1,65 @@
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
 import { Bar } from "react-chartjs-2";
+import { Box } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import PropTypes from "prop-types";
+import { baseOptions, barGradient } from "./chartTheme";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
-
-const TemporalChart = ({ analysisData }) => {
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top",
-      },
-      title: {
-        display: true,
-        text: "Temporal Analysis Chart",
-      },
-    },
-    scales: {
-      y: {
-        ticks: {
-          stepSize: 1,
-        },
-      },
-    },
-  };
-
-  console.log(analysisData.monthly_sale);
-  console.log(typeof analysisData);
-
-  const labels = analysisData.monthly_sale?.map(
-    (data) => data.product + " unit price:" + data.unit_price * 100
-  );
+/** Sales for one month, broken down by product. */
+const TemporalChart = ({ analysisData, height = 300 }) => {
+  const theme = useTheme();
+  const rows = analysisData?.monthly_sale ?? [];
 
   const data = {
-    labels,
+    labels: rows.map((d) => d.product),
     datasets: [
       {
-        label: analysisData.month,
-        data: analysisData.monthly_sale?.map((data) => data.sale),
-        backgroundColor: "#6DAED6",
+        label: `Sales — ${analysisData?.month ?? ""}`,
+        data: rows.map((d) => d.sale),
+        backgroundColor: (ctx) =>
+          barGradient(
+            ctx,
+            theme.palette.secondary.main,
+            theme.palette.info.main
+          ),
+        hoverBackgroundColor: theme.palette.secondary.main,
+        borderRadius: 6,
+        borderSkipped: false,
+        maxBarThickness: 42,
       },
     ],
   };
-  return <Bar options={options} data={data} />;
+
+  const options = baseOptions(theme, {
+    title: `Sales — ${analysisData?.month ?? "period"}`,
+    legend: false,
+  });
+
+  // unit price is context, not a second axis — surface it in the tooltip
+  options.plugins.tooltip.callbacks = {
+    afterBody: (items) => {
+      const row = rows[items[0]?.dataIndex];
+      return row?.unit_price !== undefined
+        ? `Unit price: ${row.unit_price}`
+        : "";
+    },
+  };
+
+  return (
+    <Box sx={{ height, width: "100%" }}>
+      <Bar
+        options={options}
+        data={data}
+        aria-label={`Bar chart of sales per product for ${
+          analysisData?.month ?? "the period"
+        }`}
+      />
+    </Box>
+  );
 };
 
 TemporalChart.propTypes = {
   analysisData: PropTypes.any,
+  height: PropTypes.number,
 };
 
 export default TemporalChart;
