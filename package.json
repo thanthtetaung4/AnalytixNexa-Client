@@ -7,10 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview",
-    "demo": "node demo/record-demo.mjs && node demo/postprocess.mjs",
-    "demo:record": "node demo/record-demo.mjs",
-    "demo:encode": "node demo/postprocess.mjs"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@emotion/react": "^11.11.3",
@@ -35,7 +32,6 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
-    "playwright": "^1.62.1",
     "vite": "^5.0.8"
   }
 }
